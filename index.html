@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QCM POO Java - ENSA Kénitra (Pr. Aniss Moumen)</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-full flex flex-col justify-between antialiased">
+
+    <!-- Header -->
+    <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-50 px-4 py-3 shadow-md">
+        <div class="max-w-3xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-lg font-bold text-emerald-400 flex items-center gap-2">
+                    <span>☕</span> QCM POO Java - ENSA
+                </h1>
+                <p class="text-xs text-slate-400">Pr. Aniss Moumen | Cours & Hiérarchie</p>
+            </div>
+            <div id="score-badge" class="bg-slate-700 px-3 py-1 rounded-full text-xs font-semibold text-emerald-300 border border-slate-600">
+                Score: <span id="current-score">0</span>/<span id="total-questions">0</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-3xl w-full mx-auto p-4 flex-grow flex flex-col justify-center">
+        
+        <!-- Welcome Screen -->
+        <div id="welcome-screen" class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl text-center">
+            <div class="text-4xl mb-3">🚀</div>
+            <h2 class="text-xl font-bold mb-2 text-white">Évaluation Complète - Programmation Orientée Objet Java</h2>
+            <p class="text-slate-300 text-sm mb-6 leading-relaxed">
+                Ce QCM couvre l'intégralité du cours de POO Java (ENSA Kénitra, Pr. Aniss Moumen) : des notions de base, UML, architecture Java, classes, objets, encapsulation, méthodes, constructeurs, packages, jusqu'à la section hiérarchie et héritage. Chaque question inclut des explications détaillées et des rappels de syntaxe !
+            </p>
+            <button onclick="startQuiz()" class="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-8 py-3 rounded-xl transition shadow-lg cursor-pointer">
+                Commencer le QCM (45 Questions)
+            </button>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="hidden bg-slate-800 border border-slate-700 rounded-2xl p-5 sm:p-6 shadow-xl">
+            <!-- Progress Bar -->
+            <div class="mb-4">
+                <div class="flex justify-between text-xs text-slate-400 mb-1">
+                    <span id="progress-text">Question 1 sur 45</span>
+                    <span id="category-badge" class="bg-emerald-900/50 text-emerald-300 px-2 py-0.5 rounded border border-emerald-700/50 text-[10px] uppercase font-semibold">Base</span>
+                </div>
+                <div class="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="bg-emerald-500 h-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Question Box -->
+            <div class="mb-5">
+                <h3 id="question-title" class="text-base sm:text-lg font-semibold text-white mb-4 leading-snug">
+                    <!-- Question text -->
+                </h3>
+                <div id="options-container" class="space-y-3">
+                    <!-- Options injected here -->
+                </div>
+            </div>
+
+            <!-- Explanation Box -->
+            <div id="explanation-box" class="hidden mt-4 p-4 rounded-xl border text-sm transition-all">
+                <h4 id="explanation-title" class="font-bold mb-1 flex items-center gap-1.5"></h4>
+                <p id="explanation-text" class="text-slate-300 text-xs sm:text-sm leading-relaxed"></p>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="mt-6 flex justify-between items-center gap-3">
+                <button id="prev-btn" onclick="prevQuestion()" class="bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs font-semibold px-4 py-2.5 rounded-xl transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
+                    ← Précédent
+                </button>
+                <button id="next-btn" onclick="nextQuestion()" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 text-xs font-bold px-6 py-2.5 rounded-xl transition shadow cursor-pointer hidden">
+                    Suivant →
+                </button>
+                <button id="submit-ans-btn" onclick="submitAnswer()" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 text-xs font-bold px-6 py-2.5 rounded-xl transition shadow cursor-pointer">
+                    Valider la réponse
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="results-screen" class="hidden bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl text-center">
+            <div class="text-5xl mb-3" id="result-emoji">🎉</div>
+            <h2 class="text-2xl font-bold mb-2 text-white">Quiz Terminé !</h2>
+            <p id="final-score-text" class="text-lg text-emerald-400 font-semibold mb-4">Votre score : 0 / 45</p>
+            <p id="result-message" class="text-slate-300 text-sm mb-6 leading-relaxed"></p>
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <button onclick="restartQuiz()" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-6 py-3 rounded-xl transition shadow cursor-pointer">
+                    Recommencer le QCM
+                </button>
+                <button onclick="reviewAnswers()" class="bg-slate-700 hover:bg-slate-600 text-white font-semibold px-6 py-3 rounded-xl transition border border-slate-600 cursor-pointer">
+                    Revoir les réponses
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center py-4 text-xs text-slate-500 border-t border-slate-800">
+        QCM POO Java • ENSA Kénitra • Développé pour le mobile
+    </footer>
+
+    <script>
+        const quizData = [
+            // --- SECTION 1: INTRODUCTION POO & UML ---
+            {
+                category: "Introduction POO & UML",
+                question: "Qu'est-ce qu'une classe en Programmation Orientée Objet (POO) selon le cours ?",
+                options: [
+                    "Une fonction unique effectuant un calcul mathématique.",
+                    "Une classification des objets ayant les mêmes méthodes et données (UNE CLASSE = MÉTHODES + ATTRIBUTS).",
+                    "Un fichier exécutable binaire indépendant de toute structure.",
+                    "Une variable globale partagée entre tous les processus système."
+                ],
+                correct: 1,
+                explanation: "En POO, une classe est une catégorie ou un modèle d'objets partageant les mêmes attributs (données) et méthodes (fonctions). C'est le principe fondamental de structuration."
+            },
+            {
+                category: "Introduction POO & UML",
+                question: "Quel était l'objectif principal de Bjarne Stroustrup lors de la création du C++ ?",
+                options: [
+                    "Remplacer entièrement le langage Assembleur dans les systèmes embarqués.",
+                    "Créer un langage purement fonctionnel sans effets de bord.",
+                    "Ajouter des classes au langage C pour greffer la programmation orientée objet sur un langage procédural.",
+                    "Concevoir un système d'exploitation graphique moderne."
+                ],
+                correct: 2,
+                explanation: "Bjarne Stroustrup a conçu C++ en greffant les concepts de classes et d'objets sur le langage procédural C."
+            },
+            {
+                category: "Introduction POO & UML",
+                question: "Quels sont les quatre piliers fondamentaux de la Programmation Orientée Objet présentés dans le cours ?",
+                options: [
+                    "Compilation, Interprétation, Liaison, Exécution",
+                    "Classe, Objet, Package, Interface",
+                    "Encapsulation, Héritage, Polymorphisme, (et la notion de Classe/Objet)",
+                    "Séquence, Condition, Boucle, Fonction"
+                ],
+                correct: 2,
+                explanation: "Les piliers classiques de la POO sont l'Encapsulation des données, l'Héritage, et le Polymorphisme, reposant sur le concept de Classe et d'Objet."
+            },
+            {
+                category: "Introduction POO & UML",
+                question: "Qu'est-ce que l'encapsulation des données selon le cours ?",
+                options: [
+                    "Le stockage des fichiers sources dans des archives compressées .zip.",
+                    "Le passage obligé par les méthodes de la classe pour manipuler ses données (protection des attributs).",
+                    "La conversion automatique des types primitifs en types objets.",
+                    "Le chiffrement AES des données sensibles en mémoire vive."
+                ],
+                correct: 1,
+                explanation: "L'encapsulation consiste à masquer l'état interne de l'objet et à exiger un passage obligé par ses méthodes (getters/setters) pour y accéder ou les modifier."
+            },
+            {
+                category: "Introduction POO & UML",
+                question: "Quel est le rôle principal d'UML (Unified Modeling Language) dans le développement logiciel ?",
+                options: [
+                    "Compiler directement le code source en bytecode exécutable par la JVM.",
+                    "Fournir un langage de modélisation visuel et graphique pour spécifier, construire, visualiser et documenter les systèmes logiciels.",
+                    "Gérer automatiquement la base de données relationnelle du projet.",
+                    "Exécuter des tests unitaires automatisés."
+                ],
+                correct: 1,
+                explanation: "UML est un langage graphique standardisé permettant de modéliser les besoins, l'architecture et les solutions techniques d'un système logiciel."
+            },
+            {
+                category: "Introduction POO & UML",
+                question: "Qu'est-ce que l'instanciation d'un objet ?",
+                options: [
+                    "La suppression d'une classe de la mémoire.",
+                    "L'opération qui consiste à créer un exemplaire (objet) concret de type Classe en mémoire.",
+                    "La compilation d'un fichier .java en .class.",
+                    "L'appel d'une méthode statique sans créer d'objet."
+                ],
+                correct: 1,
+                explanation: "L'instanciation est la création d'un objet (un exemplaire typique) à partir du modèle défini par la classe, généralement via l'opérateur `new`."
+            },
+            {
+                category: "Introduction POO & UML",
+                question: "Comment appelle-t-on une relation dans un diagramme de classes UML qui représente une utilisation ou un besoin de services d'une autre classe ?",
+                options: [
+                    "Une association / dépendance / composition",
+                    "Un thread d'exécution",
+                    "Une exception non contrôlée",
+                    "Un paquetage système"
+                ],
+                correct: 0,
+                explanation: "Le cours distingue les relations d'association, de dépendance, de composition et d'héritage pour lier les classes entre elles."
+            },
+
+            // --- SECTION 2: INTRODUCTION À JAVA ---
+            {
+                category: "Introduction à Java",
+                question: "Quelle est la principale caractéristique de la portabilité en Java (\"Write Once, Run Anywhere\") ?",
+                options: [
+                    "Le code source est traduit en langage machine natif du processeur lors de l'installation.",
+                    "Le code source Java est compilé en un code intermédiaire appelé *bytecode*, exécutable sur toute machine dotée d'une JVM (Java Virtual Machine).",
+                    "Le code s'exécute directement dans le BIOS de la machine.",
+                    "Le programme s'adapte automatiquement à tous les langages humains."
+                ],
+                correct: 1,
+                explanation: "Java assure sa portabilité grâce à la compilation en bytecode, lequel est ensuite interprété ou compilé à la volée (JIT) par la JVM de la machine cible."
+            },
+            {
+                category: "Introduction à Java",
+                question: "Quel composant de l'architecture Java est responsable du chargement dynamique des classes nécessaires à l'exécution ?",
+                options: [
+                    "Le Garbage Collector",
+                    "Le chargeur de classes (Class Loader)",
+                    "Le compilateur Javac",
+                    "L'éditeur de liens natif C++"
+                ],
+                correct: 1,
+                explanation: "Le chargeur de classes (Class Loader) est l'élément clé de la JVM qui charge les classes en mémoire lors de l'exécution du programme."
+            },
+            {
+                category: "Introduction à Java",
+                question: "Quelle est la signature exacte et obligatoire de la méthode `main` permettant de lancer un programme Java ?",
+                options: [
+                    "public void main(String args)",
+                    "static int main(String[] tab)",
+                    "public static void main(String[] args)",
+                    "private void main(int argc, char** argv)"
+                ],
+                correct: 2,
+                explanation: "La méthode de démarrage doit être `public`, `static`, `void`, s'appeler `main`, et prendre en paramètre un tableau de `String` (`String[] args`)."
+            },
+            {
+                category: "Introduction à Java",
+                question: "Que font exactement les instructions `System.out.println(...)` en Java ?",
+                options: [
+                    "Elles lisent une ligne de texte depuis le clavier.",
+                    "Elles écrivent/affichent un message sur la sortie standard (console) en sautant une ligne.",
+                    "Elles écrivent des données dans une base de données SQL.",
+                    "Elles arrêtent brutalement l'exécution du programme."
+                ],
+                correct: 1,
+                explanation: "`System.out` est un objet de la classe `PrintStream` (flux de sortie standard) et `println()` permet d'afficher l'argument suivi d'un saut de ligne."
+            },
+            {
+                category: "Introduction à Java",
+                question: "Quel fichier est généré sur le disque après la compilation réussie d'une classe nommée `Bonjour.java` par le compilateur `javac` ?",
+                options: [
+                    "Bonjour.exe",
+                    "Bonjour.class (contenant le bytecode)",
+                    "Bonjour.cpp",
+                    "Bonjour.zip"
+                ],
+                correct: 1,
+                explanation: "La compilation d'un fichier `.java` par `javac` produit un fichier `.class` contenant le bytecode exécutable par la JVM."
+            },
+
+            // --- SECTION 3: CLASSES & OBJETS (PARTIE I) ---
+            {
+                category: "Classes & Objets",
+                question: "Quelle est la différence entre une variable d'instance (attribut d'objet) et une variable de classe (`static`) ?",
+                options: [
+                    "La variable de classe n'existe que dans les méthodes privées, contrairement à la variable d'instance.",
+                    "La variable d'instance est partagée par tous les objets, tandis que la variable de classe est propre à chaque objet.",
+                    "Chaque instance possède son propre exemplaire de la variable d'instance, tandis que la variable de classe est unique et partagée entre toutes les instances.",
+                    "Il n'aucune différence, les deux termes sont strictement synonymes."
+                ],
+                correct: 2,
+                explanation: "Une variable d'instance appartient à chaque objet (copie par instance), alors qu'une variable `static` (de classe) est unique et partagée par l'ensemble des instances de la classe."
+            },
+            {
+                category: "Introduction à Java",
+                question: "Quelle classe du package `java.util` est couramment utilisée pour lire les saisies utilisateur depuis la console (flux d'entrée) ?",
+                options: [
+                    "Scanner",
+                    "BufferedReaderStream",
+                    "ConsoleReader",
+                    "InputParser"
+                ],
+                correct: 0,
+                explanation: "La classe `Scanner` (du package `java.util`) facilite la lecture des types primitifs et des chaînes depuis divers flux, notamment `System.in`."
+            },
+            {
+                category: "Classes & Objets",
+                question: "Quelles sont les deux manières d'appeler une méthode en Java selon le cours ?",
+                options: [
+                    "Par pointeur mémoire direct ou par référence sécurisée.",
+                    "Méthode (1) via `Nomclasse.methode(...)` si la méthode est `static` ; Méthode (2) via un objet instancié `objet.methode(...)` si la méthode est classique.",
+                    "Uniquement via l'interface graphique Swing.",
+                    "Par appel distant RPC ou RMI obligatoire."
+                ],
+                correct: 1,
+                explanation: "Si une méthode est `static`, on l'appelle directement via le nom de la classe (`NomClasse.methode()`). Si elle est classique (d'instance), on l'appelle via une référence d'objet (`monObjet.methode()`)."
+            },
+            {
+                category: "Classes & Objets",
+                question: "Quel est le rôle des classes enveloppantes (Wrapper classes comme `Integer`, `Double`, `Character`, `Boolean`) en Java ?",
+                options: [
+                    "Permettre le chiffrement des données sensibles.",
+                    "Envelopper les types primitifs sous forme d'objets pour pouvoir les manipuler dans des collections (comme `ArrayList`) et fournir des méthodes utilitaires.",
+                    "Remplacer complètement les types primitifs pour accélérer l'exécution.",
+                    "Gérer les connexions réseaux TCP/IP."
+                ],
+                correct: 1,
+                explanation: "Les classes enveloppantes (wrappers) permettent de traiter les types primitifs comme des objets, ce qui est indispensable pour les structures de données génériques et les collections."
+            },
+            {
+                category: "Classes & Objets",
+                question: "Quels sont les quatre niveaux de visibilité (portée) des membres (attributs/méthodes) en Java ?",
+                options: [
+                    "local, global, distant, externe",
+                    "private, protected, public, et le niveau par défaut (friendly / package)",
+                    "static, final, abstract, synchronized",
+                    "open, closed, restricted, free"
+                ],
+                correct: 1,
+                explanation: "En Java, les niveaux de visibilité sont `private` (interne à la classe), `protected` (classe, sous-classes et package), `public` (accessible partout), et l'accès par défaut (package-private)."
+            },
+            {
+                category: "Classes & Objets",
+                question: "Comment implémente-t-on l'encapsulation en Java selon les bonnes pratiques du cours ?",
+                options: [
+                    "En déclarant tous les champs en `public` et toutes les méthodes en `private`.",
+                    "En déclarant les variables en `private` et en développant des méthodes publiques (`getters` et `setters`) pour y accéder et les modifier.",
+                    "En utilisant exclusivement des classes abstraites.",
+                    "En évitant d'utiliser des attributs dans les classes."
+                ],
+                correct: 1,
+                explanation: "L'encapsulation standard en Java consiste à masquer les attributs (`private`) et à fournir des méthodes d'accès publiques (`getters`/`setters`) contrôlées."
+            },
+            {
+                category: "Classes & Objets",
+                question: "Qu'est-ce qu'un constructeur en Java ?",
+                options: [
+                    "Une méthode spéciale portant le même nom que la classe, sans type de retour, appelée lors de l'instanciation (`new`) pour initialiser l'objet.",
+                    "Une fonction qui détruit l'objet à la fin du programme.",
+                    "Une méthode statique obligatoire dans chaque interface.",
+                    "Un outil de compilation de code source."
+                ],
+                correct: 0,
+                explanation: "Le constructeur est une méthode membre particulière qui porte le nom exact de la classe, ne retourne rien (même pas `void`), et sert à initialiser les objets lors de l'instanciation."
+            },
+            {
+                category: "Classes & Objets",
+                question: "Existe-t-il un destructeur explicite en Java comme en C++ ?",
+                options: [
+                    "Oui, la méthode `~NomClasse()` doit toujours être implémentée.",
+                    "Non, Java gère la libération de la mémoire automatiquement grâce au Garbage Collector (ramasse-miettes).",
+                    "Oui, via la commande `delete` obligatoire.",
+                    "Non, la mémoire n'est jamais libérée en Java."
+                ],
+                correct: 1,
+                explanation: "En Java, il n'y a pas de destructeur explicite ; le nettoyage de la mémoire est pris en charge automatiquement par le Garbage Collector de la JVM."
+            },
+            {
+                category: "Classes & Objets",
+                question: "Comment se fait la transmission des arguments lors de l'appel d'une méthode en Java ?",
+                options: [
+                    "Toujours par référence pour tous les types (primitifs et objets).",
+                    "Toujours par valeur (copie de la valeur de la variable ou de la référence de l'objet).",
+                    "Par pointeur explicite en mémoire C.",
+                    "Par flux réseau asynchrone."
+                ],
+                correct: 1,
+                explanation: "En Java, la transmission des paramètres se fait **toujours par valeur**. Pour un type primitif, c'est la valeur de la donnée qui est copiée ; pour un objet, c'est la **valeur de la référence** (l'adresse pointée) qui est copiée."
+            },
+            {
+                category: "Classes & Objets",
+                question: "Qu'appelle-t-on la surcharge (ou surdéfinition / overloading) des méthodes en Java ?",
+                options: [
+                    "Le fait de redéfinir une méthode de la classe mère dans la classe fille.",
+                    "Le fait de définir plusieurs méthodes portant le **même nom** dans la même classe, mais ayant des **signatures différentes** (nombre ou types de paramètres différents).",
+                    "L'utilisation excessive de la mémoire par une méthode récursive.",
+                    "Le dépassement de capacité d'un tableau."
+                ],
+                correct: 1,
+                explanation: "La surcharge (overloading) permet d'avoir plusieurs méthodes de même nom dans une même classe à condition que leurs paramètres (signature) diffèrent."
+            },
+            {
+                category: "Classes & Objets",
+                question: "Que désigne le mot-clé `this` à l'intérieur d'une méthode de classe ?",
+                options: [
+                    "La classe mère (super-classe).",
+                    "L'instance courante de la classe elle-même (l'objet en cours d'exécution).",
+                    "Le package parent.",
+                    "La méthode principale `main`."
+                ],
+                correct: 1,
+                explanation: "`this` est une référence implicite vers l'objet courant sur lequel la méthode est appelée."
+            },
+            {
+                category: "Classes & Objets",
+                question: "Qu'est-ce qu'une méthode récursive ?",
+                options: [
+                    "Une méthode qui s'exécute en arrière-plan dans un thread séparé.",
+                    "Une méthode qui s'appelle elle-même au cours de son exécution pour résoudre un problème par sous-problèmes.",
+                    "Une méthode qui ne peut être appelée qu'une seule fois.",
+                    "Une méthode dont le code est crypté."
+                ],
+                correct: 1,
+                explanation: "La récursivité est un processus où une méthode s'appelle elle-même, en s'appuyant sur un cas de base pour stopper la récurrence."
+            },
+            {
+                category: "Classes & Objets",
+                question: "Quel est l'intérêt de déclarer des packages (`package mon.paquetage;`) en Java ?",
+                options: [
+                    "Compresser le code source en format .tar.gz.",
+                    "Organiser logiquement les classes, éviter les conflits de nommage et contrôler la portée d'accès (package-private).",
+                    "Accélérer l'exécution du processeur.",
+                    "Remplacer l'utilisation des bases de données."
+                ],
+                correct: 1,
+                explanation: "Les packages permettent de structurer le code en espaces de noms hiérarchiques, facilitant la maintenance et la modularité."
+            },
+
+            // --- SECTION 4: HÉRITAGE & HIÉRARCHIE ---
+            {
+                category: "Héritage & Hiérarchie",
+                question: "Comment indique-t-on en Java qu'une classe fille hérite d'une classe mère ?",
+                options: [
+                    "En utilisant le mot-clé `inherits` (ex: `class Fille inherits Mere`).",
+                    "En utilisant le mot-clé `extends` (ex: `class Fille extends Mere`).",
+                    "En utilisant le symbole `:` (ex: `class Fille : Mere`).",
+                    "En utilisant le mot-clé `implements`."
+                ],
+                correct: 1,
+                explanation: "En Java, l'héritage de classe s'effectue obligatoirement à l'aide du mot-clé `extends`."
+            },
+            {
+                category: "Héritage & Hiérarchie",
+                question: "Quel type d'héritage de classes existe-t-il en Java ?",
+                options: [
+                    "Uniquement l'héritage multiple (une classe peut hériter de plusieurs classes mères simultanément).",
+                    "Uniquement l'héritage simple pour les classes (une classe ne peut étendre qu'une seule classe mère).",
+                    "Aucun héritage n'est permis en Java.",
+                    "L'héritage circulaire infini."
+                ],
+                correct: 1,
+                explanation: "Java ne supporte pas l'héritage multiple de classes pour éviter l'ambiguïté (problème du diamant) ; chaque classe a au plus une seule classe mère directe (héritage simple)."
+            },
+            {
+                category: "Héritage & Hiérarchie",
+                question: "Quelle est la super-classe universelle de toutes les classes en Java (si aucune autre classe n'est explicitement étendue) ?",
+                options: [
+                    "System",
+                    "Root",
+                    "Object (du package java.lang)",
+                    "Class"
+                ],
+                correct: 2,
+                explanation: "En Java, toute classe hérite implicitement de la super-classe `Object` si aucun autre `extends` n'est spécifié."
+            },
+            {
+                category: "Héritage & Hiérarchie",
+                question: "Quelles méthodes fondamentales trouve-t-on dans la super-classe `Object`, souvent redéfinies dans les classes dérivées ?",
+                options: [
+                    "start() et stop()",
+                    "toString() et equals()",
+                    "compile() et run()",
+                    "push() et pop()"
+                ],
+                correct: 1,
+                explanation: "La classe `Object` fournit des méthodes essentielles comme `toString()` (pour obtenir une représentation textuelle) et `equals()` (pour comparer l'égalité de deux objets)."
+            },
+            {
+                category: "Héritage & Hiérarchie",
+                question: "Quel est le rôle du mot-clé `super` dans une sous-classe Java ?",
+                options: [
+                    "Il permet d'appeler le constructeur ou les méthodes/champs de la classe mère (super-classe).",
+                    "Il rend la classe finale et non dérivable.",
+                    "Il transforme une variable locale en variable globale statique.",
+                    "Il force l'arrêt immédiat du programme en cas d'erreur."
+                ],
+                correct: 0,
+                explanation: "`super` est une référence permettant à la classe fille d'accéder aux membres de sa classe parente ou d'invoquer son constructeur (`super(...)`)."
+            },
+            {
+                category: "Héritage & Hiérarchie",
+                question: "Dans quel ordre s'exécutent les constructeurs lors de l'instanciation d'un objet d'une classe dérivée (fille) ?",
+                options: [
+                    "Le constructeur de la classe fille s'exécute en premier, puis celui de la classe mère.",
+                    "Le constructeur de la classe mère (super-classe) est toujours appelé et exécuté **AVANT** le constructeur de la classe dérivée.",
+                    "Les constructeurs s'exécutent de manière totalement aléatoire.",
+                    "Seul le constructeur de la classe fille s'exécute, celui de la classe mère est ignoré."
+                ],
+                correct: 1,
+                explanation: "La construction d'un objet dérivé exige que la base soit construite d'abord ; le constructeur de la classe mère est donc appelé en première instruction (explicitement via `super()` ou implicitement)."
+            },
+            {
+                category: "Héritage & Hiérarchie",
+                question: "Qu'est-ce que la redéfinition de méthode (override) dans le cadre de l'héritage ?",
+                options: [
+                    "Le fait de changer le nom d'une méthode dans la classe mère.",
+                    "Le fait pour une classe dérivée de fournir sa propre implémentation d'une méthode héritée de la classe mère en conservant la même signature.",
+                    "Le fait d'interdire l'accès à une méthode aux autres classes.",
+                    "L'effacement définitif de la méthode de la mémoire."
+                ],
+                correct: 1,
+                explanation: "La redéfinition (override) permet à une sous-classe de modifier ou d'adapter le comportement d'une méthode héritée en gardant exactement la même signature."
+            },
+            {
+                category: "Héritage & Hiérarchie",
+                question: "En quoi consiste le polymorphisme en Java ?",
+                options: [
+                    "À la capacité de compiler le code en plusieurs langages différents (C, C++, Python).",
+                    "À fournir une interface unique pour des objets de types différents, permettant d'exécuter la méthode appropriée selon le type réel de l'objet à l'exécution (liaison dynamique).",
+                    "À changer la valeur d'une constante après son initialisation.",
+                    "À dupliquer automatiquement un objet en mémoire."
+                ],
+                correct: 1,
+                explanation: "Le polymorphisme (plusieurs formes) permet d'utiliser une référence de type classe mère pour manipuler des objets de classes filles, la méthode exécutée étant celle de l'objet réel (liaison dynamique)."
+            },
+            {
+                category: "Héritage & Hiérarchie",
+                question: "Est-il possible de redéfinir une méthode statique (`static`) en Java pour faire du polymorphisme ?",
+                options: [
+                    "Oui, les méthodes statiques supportent pleinement le polymorphisme.",
+                    "Non, les méthodes statiques (de classe) sont liées à la classe lors de la compilation et ne supportent pas la redéfinition polymorphe.",
+                    "Oui, à condition d'utiliser le mot-clé `virtual`.",
+                    "Seulement dans les interfaces graphiques."
+                ],
+                correct: 1,
+                explanation: "Les méthodes `static` sont résolues statiquement à la compilation en fonction du type de la référence, et non de l'objet réel ; elles ne participent donc pas au polymorphisme."
+            },
+            {
+                category: "Héritage & Hiérarchie",
+                question: "Quel est l'effet du mot-clé `final` appliqué respectivement à un attribut, une méthode ou une classe en Java ?",
+                options: [
+                    "Il rend l'élément temporaire et effaçable.",
+                    "Sur un attribut : il devient une constante (invariable) ; Sur une méthode : elle ne peut plus être redéfinie ; Sur une classe : elle ne peut plus être étriquée/dérivée (pas de sous-classe).",
+                    "Il accélère l'exécution de 50%.",
+                    "Il transforme la classe en interface."
+                ],
+                correct: 1,
+                explanation: "Le modificateur `final` fige l'élément : constante pour les variables, interdiction de redéfinir pour les méthodes, et interdiction d'hériter pour les classes."
+            },
+            {
+                category: "Héritage & Hiérarchie",
+                question: "Qu'est-ce qu'une classe abstraite en Java ?",
+                options: [
+                    "Une classe qui ne contient que des variables statiques.",
+                    "Une classe modèle qui ne peut pas être instanciée directement (`new`), conçue uniquement pour servir de base à l'héritage et pouvant contenir des méthodes abstraites.",
+                    "Une classe invisible pour le compilateur.",
+                    "Une classe qui n'a aucun attribut."
+                ],
+                correct: 1,
+                explanation: "Une classe abstraite (`abstract class`) ne peut être instanciée directement ; elle sert de structure de base pour les classes filles et peut imposer l'implémentation de méthodes abstraites."
+            },
+            {
+                category: "Héritage & Hiérarchie",
+                question: "Quelle est la différence fondamentale entre une classe abstraite et une Interface en Java ?",
+                options: [
+                    "Une interface ne peut contenir aucune variable, uniquement des constantes et des méthodes abstraites (sans corps), et une classe peut en implémenter plusieurs.",
+                    "Il n'y a aucune différence, les deux termes sont interchangeables.",
+                    "Une interface peut être instanciée directement avec `new`, contrairement à la classe abstraite.",
+                    "Une classe abstraite ne peut pas posséder de méthodes concrètes."
+                ],
+                correct: 0,
+                explanation: "Une interface définit un contrat pur (constantes et méthodes non implémentées par défaut, sauf méthodes default récentes), et une classe peut implémenter **plusieurs** interfaces (contournant l'absence d'héritage multiple de classes)."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let selectedOption = null;
+        let answered = false;
+        let userAnswers = new Array(quizData.length).fill(null);
+
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultsScreen = document.getElementById('results-screen');
+        const questionTitle = document.getElementById('question-title');
+        const optionsContainer = document.getElementById('options-container');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const categoryBadge = document.getElementById('category-badge');
+        const explanationBox = document.getElementById('explanation-box');
+        const explanationTitle = document.getElementById('explanation-title');
+        const explanationText = document.getElementById('explanation-text');
+        const currentScoreSpan = document.getElementById('current-score');
+        const totalQuestionsSpan = document.getElementById('total-questions');
+        const nextBtn = document.getElementById('next-btn');
+        const submitAnsBtn = document.getElementById('submit-ans-btn');
+        const prevBtn = document.getElementById('prev-btn');
+
+        totalQuestionsSpan.textContent = quizData.length;
+
+        function startQuiz() {
+            welcomeScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const q = quizData[currentQuestion];
+            questionTitle.textContent = `${currentQuestion + 1}. ${q.question}`;
+            categoryBadge.textContent = q.category;
+            progressText.textContent = `Question ${currentQuestion + 1} sur ${quizData.length}`;
+            progressBar.style.width = `${((currentQuestion + 1) / quizData.length) * 100}%`;
+            currentScoreSpan.textContent = score;
+
+            optionsContainer.innerHTML = '';
+            explanationBox.classList.add('hidden');
+            selectedOption = userAnswers[currentQuestion];
+            answered = selectedOption !== null;
+
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left p-3.5 rounded-xl border text-xs sm:text-sm transition flex items-start gap-3 cursor-pointer ${
+                    userAnswers[currentQuestion] === index 
+                        ? 'bg-slate-700 border-emerald-500 text-white shadow' 
+                        : 'bg-slate-750 border-slate-700 hover:border-slate-500 text-slate-200'
+                }`;
+                
+                if (answered) {
+                    btn.disabled = true;
+                    if (index === q.correct) {
+                        btn.className = 'w-full text-left p-3.5 rounded-xl border bg-emerald-950/60 border-emerald-500 text-emerald-200 text-xs sm:text-sm';
+                    } else if (index === selectedOption && index !== q.correct) {
+                        btn.className = 'w-full text-left p-3.5 rounded-xl border bg-rose-950/60 border-rose-500 text-rose-200 text-xs sm:text-sm';
+                    } else {
+                        btn.className = 'w-full text-left p-3.5 rounded-xl border bg-slate-800 border-slate-700 text-slate-400 text-xs sm:text-sm opacity-60';
+                    }
+                }
+
+                btn.innerHTML = `
+                    <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-700 text-xs font-bold text-slate-300 flex-shrink-0">${String.fromCharCode(65 + index)}</span>
+                    <span class="mt-0.5">${opt}</span>
+                `;
+                
+                if (!answered) {
+                    btn.onclick = () => selectOption(index);
+                }
+                optionsContainer.appendChild(btn);
+            });
+
+            prevBtn.disabled = currentQuestion === 0;
+
+            if (answered) {
+                submitAnsBtn.classList.add('hidden');
+                nextBtn.classList.remove('hidden');
+                showExplanation(selectedOption === q.correct, q);
+            } else {
+                submitAnsBtn.classList.remove('hidden');
+                nextBtn.classList.add('hidden');
+                submitAnsBtn.disabled = true;
+                submitAnsBtn.classList.add('opacity-50');
+            }
+        }
+
+        function selectOption(index) {
+            selectedOption = index;
+            const buttons = optionsContainer.children;
+            for (let i = 0; i < buttons.length; i++) {
+                if (i === index) {
+                    buttons[i].className = 'w-full text-left p-3.5 rounded-xl border bg-slate-700 border-emerald-500 text-white shadow text-xs sm:text-sm flex items-start gap-3 cursor-pointer';
+                } else {
+                    buttons[i].className = 'w-full text-left p-3.5 rounded-xl border bg-slate-750 border-slate-700 hover:border-slate-500 text-slate-200 text-xs sm:text-sm flex items-start gap-3 cursor-pointer';
+                }
+            }
+            submitAnsBtn.disabled = false;
+            submitAnsBtn.classList.remove('opacity-50');
+        }
+
+        function submitAnswer() {
+            if (selectedOption === null) return;
+            answered = true;
+            userAnswers[currentQuestion] = selectedOption;
+            
+            const q = quizData[currentQuestion];
+            const isCorrect = selectedOption === q.correct;
+            if (isCorrect) {
+                score++;
+            }
+            currentScoreSpan.textContent = score;
+
+            loadQuestion();
+        }
+
+        function showExplanation(isCorrect, q) {
+            explanationBox.classList.remove('hidden');
+            if (isCorrect) {
+                explanationBox.className = 'mt-4 p-4 rounded-xl border bg-emerald-950/40 border-emerald-600/50 text-emerald-200 text-sm';
+                explanationTitle.innerHTML = '<span>✅</span> Bonne réponse !';
+            } else {
+                explanationBox.className = 'mt-4 p-4 rounded-xl border bg-rose-950/40 border-rose-600/50 text-rose-200 text-sm';
+                explanationTitle.innerHTML = `<span>❌</span> Mauvaise réponse. La bonne réponse était : <b>${String.fromCharCode(65 + q.correct)}</b>`;
+            }
+            explanationText.textContent = q.explanation;
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < quizData.length - 1) {
+                currentQuestion++;
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                loadQuestion();
+            }
+        }
+
+        function showResults() {
+            quizScreen.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+            document.getElementById('final-score-text').textContent = `Votre score : ${score} / ${quizData.length}`;
+            
+            const percentage = (score / quizData.length) * 100;
+            const emoji = document.getElementById('result-emoji');
+            const msg = document.getElementById('result-message');
+
+            if (percentage >= 80) {
+                emoji.textContent = '🏆';
+                msg.textContent = 'Excellent travail ! Vous maîtrisez parfaitement les concepts de la POO Java et de la hiérarchie.';
+            } else if (percentage >= 50) {
+                emoji.textContent = '👍';
+                msg.textContent = 'Bon résultat ! Quelques notions sur l’encapsulation ou l’héritage méritent d’être révisées.';
+            } else {
+                emoji.textContent = '📚';
+                msg.textContent = 'Un petit effort de relecture du cours du Pr. Aniss Moumen vous permettra de consolider vos bases en POO Java !';
+            }
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            userAnswers = new Array(quizData.length).fill(null);
+            resultsScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            loadQuestion();
+        }
+
+        function reviewAnswers() {
+            resultsScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            currentQuestion = 0;
+            loadQuestion();
+        }
+    </script>
+</body>
+</html>
