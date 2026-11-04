@@ -36,7 +36,7 @@ html_template = '''<!DOCTYPE html>
             </div>
             <div class="flex items-center gap-3">
                 <div id="mode-toggle-container" class="bg-slate-700 p-1 rounded-xl flex gap-1 border border-slate-600">
-                    <button id="mode-qcm-btn" onclick="switchMode('qcm')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition bg-emerald-500 text-slate-950 cursor-pointer">QCM</button>
+                    <button id="mode-qcm-btn" onclick="switchMode('qcm')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition bg-emerald-500 text-slate-950 cursor-pointer">QCM (Flux)</button>
                     <button id="mode-flash-btn" onclick="switchMode('flash')" class="px-2.5 py-1 rounded-lg text-xs font-semibold transition text-slate-300 hover:text-white cursor-pointer">Flashcards (Flux)</button>
                     <button id="mode-fiches-btn" onclick="switchMode('fiches')" class="px-2.5 py-1 rounded-lg text-xs font-semibold transition text-slate-300 hover:text-white cursor-pointer">Fiches Mémoire</button>
                 </div>
@@ -55,11 +55,11 @@ html_template = '''<!DOCTYPE html>
             <div class="text-4xl mb-3">🚀</div>
             <h2 class="text-xl font-bold mb-2 text-white">Règles & Maîtrise Totale POO Java (ENSAK)</h2>
             <p class="text-slate-300 text-sm mb-6 leading-relaxed">
-                Ce hub de révision ultime couvre l'intégralité du cours de Pr. Aniss Moumen (105 questions QCM, 105 flashcards en flux déroulant et des <b>Fiches Mémoire détaillées</b>). Choisissez votre mode !
+                Ce hub de révision ultime couvre l'intégralité du cours de Pr. Aniss Moumen en <b>flux déroulant continu</b> (105 questions QCM, 105 flashcards et des <b>Fiches Mémoire détaillées</b>). Choisissez votre mode !
             </p>
             <div class="flex flex-col sm:flex-row gap-3 justify-center">
                 <button onclick="startMode('qcm')" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-5 py-3 rounded-xl transition shadow-lg cursor-pointer text-xs">
-                    Mode QCM Interactif (105 Q)
+                    Mode QCM (Flux Déroulant)
                 </button>
                 <button onclick="startMode('flash')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-3 rounded-xl transition shadow-lg cursor-pointer text-xs">
                     Flashcards (Flux Déroulant)
@@ -70,36 +70,14 @@ html_template = '''<!DOCTYPE html>
             </div>
         </div>
 
-        <!-- QCM Quiz Screen -->
-        <div id="quiz-screen" class="hidden bg-slate-800 border border-slate-700 rounded-2xl p-5 sm:p-6 shadow-xl">
-            <div class="mb-4 flex justify-between items-center">
-                <span id="progress-text" class="text-xs text-slate-400 font-medium">Question 1 sur __TOTAL_Q__</span>
-                <span id="category-badge" class="bg-emerald-900/50 text-emerald-300 px-2 py-0.5 rounded border border-emerald-700/50 text-[10px] uppercase font-semibold">Base</span>
+        <!-- QCM Scrolling Screen -->
+        <div id="quiz-screen" class="hidden flex flex-col w-full">
+            <div class="mb-4 text-center">
+                <h3 class="text-lg font-bold text-emerald-400">📝 QCM - Flux Déroulant (105 Questions)</h3>
+                <p class="text-xs text-slate-400">Répondez à votre rythme, vérifiez instantanément vos réponses et suivez votre score en direct !</p>
             </div>
-            <div class="w-full bg-slate-700 h-2 rounded-full overflow-hidden mb-5">
-                <div id="progress-bar" class="bg-emerald-500 h-full transition-all duration-300" style="width: 0%"></div>
-            </div>
-
-            <div class="mb-5">
-                <h3 id="question-title" class="text-base sm:text-lg font-semibold text-white mb-4 leading-snug"></h3>
-                <div id="options-container" class="space-y-3"></div>
-            </div>
-
-            <div id="explanation-box" class="hidden mt-4 p-4 rounded-xl border text-sm transition-all">
-                <h4 id="explanation-title" class="font-bold mb-1 flex items-center gap-1.5"></h4>
-                <p id="explanation-text" class="text-slate-300 text-xs sm:text-sm leading-relaxed"></p>
-            </div>
-
-            <div class="mt-6 flex justify-between items-center gap-3">
-                <button id="prev-btn" onclick="prevQuestion()" class="bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs font-semibold px-4 py-2.5 rounded-xl transition disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer">
-                    ← Précédent
-                </button>
-                <button id="next-btn" onclick="nextQuestion()" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 text-xs font-bold px-6 py-2.5 rounded-xl transition shadow cursor-pointer hidden">
-                    Suivant →
-                </button>
-                <button id="submit-ans-btn" onclick="submitAnswer()" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 text-xs font-bold px-6 py-2.5 rounded-xl transition shadow cursor-pointer">
-                    Valider
-                </button>
+            <div id="qcm-feed" class="space-y-6 w-full pb-10">
+                <!-- All QCM questions injected here -->
             </div>
         </div>
 
@@ -140,22 +118,6 @@ html_template = '''<!DOCTYPE html>
             </div>
         </div>
 
-        <!-- Results Screen -->
-        <div id="results-screen" class="hidden bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl text-center">
-            <div class="text-5xl mb-3" id="result-emoji">🎉</div>
-            <h2 class="text-2xl font-bold mb-2 text-white">Session Terminée !</h2>
-            <p id="final-score-text" class="text-lg text-emerald-400 font-semibold mb-4">Votre score : 0 / __TOTAL_Q__</p>
-            <p id="result-message" class="text-slate-300 text-sm mb-6 leading-relaxed"></p>
-            <div class="flex flex-col sm:flex-row gap-3 justify-center">
-                <button onclick="restartQuiz()" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-6 py-3 rounded-xl transition shadow cursor-pointer text-xs">
-                    Recommencer
-                </button>
-                <button onclick="startMode('fiches')" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-6 py-3 rounded-xl transition shadow cursor-pointer text-xs">
-                    Relire les Fiches Mémoire
-                </button>
-            </div>
-        </div>
-
     </main>
 
     <!-- Footer -->
@@ -168,25 +130,20 @@ html_template = '''<!DOCTYPE html>
         const fiches = __FICHES_JSON__;
 
         let currentMode = 'qcm';
-        let currentIndex = 0;
         let currentFicheIndex = 0;
         let score = 0;
-        let selectedOption = null;
-        let answered = false;
-        let userAnswers = new Array(questions.length).fill(null);
+        let userAnswers = {}; // questionIndex -> selectedOptionIndex
+        let checkedQuestions = {}; // questionIndex -> boolean
 
         const welcomeScreen = document.getElementById('welcome-screen');
         const quizScreen = document.getElementById('quiz-screen');
         const flashcardScreen = document.getElementById('flashcard-screen');
         const fichesScreen = document.getElementById('fiches-screen');
-        const resultsScreen = document.getElementById('results-screen');
 
         function switchMode(mode) {
             currentMode = mode;
-            currentIndex = 0;
             currentFicheIndex = 0;
             welcomeScreen.classList.add('hidden');
-            resultsScreen.classList.add('hidden');
             
             document.getElementById('mode-qcm-btn').className = 'px-2.5 py-1 rounded-lg text-xs font-semibold transition text-slate-300 hover:text-white cursor-pointer';
             document.getElementById('mode-flash-btn').className = 'px-2.5 py-1 rounded-lg text-xs font-semibold transition text-slate-300 hover:text-white cursor-pointer';
@@ -197,7 +154,7 @@ html_template = '''<!DOCTYPE html>
                 flashcardScreen.classList.add('hidden');
                 fichesScreen.classList.add('hidden');
                 document.getElementById('mode-qcm-btn').className = 'px-2.5 py-1 rounded-lg text-xs font-bold transition bg-emerald-500 text-slate-950 cursor-pointer';
-                loadQuestion();
+                renderQCMFeed();
             } else if (mode === 'flash') {
                 flashcardScreen.classList.remove('hidden');
                 quizScreen.classList.add('hidden');
@@ -217,115 +174,100 @@ html_template = '''<!DOCTYPE html>
             switchMode(mode);
         }
 
-        function loadQuestion() {
-            const q = questions[currentIndex];
-            document.getElementById('question-title').textContent = (currentIndex + 1) + '. ' + q.q;
-            document.getElementById('category-badge').textContent = q.cat;
-            document.getElementById('progress-text').textContent = 'Question ' + (currentIndex + 1) + ' sur ' + questions.length;
-            document.getElementById('progress-bar').style.width = (((currentIndex + 1) / questions.length) * 100) + '%';
+        // --- QCM Feed Logic ---
+        function renderQCMFeed() {
+            const feed = document.getElementById('qcm-feed');
+            feed.innerHTML = '';
+            score = 0;
             document.getElementById('current-score').textContent = score;
 
-            const optsContainer = document.getElementById('options-container');
-            optsContainer.innerHTML = '';
-            document.getElementById('explanation-box').classList.add('hidden');
+            questions.forEach((q, idx) => {
+                const card = document.createElement('div');
+                card.className = 'bg-slate-800 border border-slate-700 rounded-xl p-4 shadow space-y-3';
+                card.id = 'qcard-' + idx;
+
+                let optsHtml = '';
+                q.opts.forEach((opt, oIdx) => {
+                    const letter = String.fromCharCode(65 + oIdx);
+                    optsHtml += (
+                        '<button onclick="selectQCMOption(' + idx + ', ' + oIdx + ')" id="q' + idx + '-opt' + oIdx + '" class="w-full text-left p-3 rounded-lg border border-slate-700 bg-slate-750 hover:border-slate-500 text-xs sm:text-sm text-slate-200 transition flex items-start gap-2.5 cursor-pointer">' +
+                            '<span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-slate-700 text-[10px] font-bold text-slate-300 flex-shrink-0">' + letter + '</span>' +
+                            '<span class="mt-0.5">' + opt + '</span>' +
+                        '</button>'
+                    );
+                });
+
+                card.innerHTML = (
+                    '<div class="flex justify-between items-center">' +
+                        '<span class="text-[10px] bg-emerald-900/50 text-emerald-300 px-2 py-0.5 rounded border border-emerald-700/50 uppercase font-semibold">' + q.cat + '</span>' +
+                        '<span class="text-xs text-slate-400 font-semibold">Question #' + (idx + 1) + '</span>' +
+                    '</div>' +
+                    '<h4 class="text-sm font-bold text-white">' + q.q + '</h4>' +
+                    '<div class="space-y-2 mt-2">' + optsHtml + '</div>' +
+                    '<div class="flex justify-between items-center mt-3 pt-2 border-t border-slate-700">' +
+                        '<button onclick="checkQCMQuestion(' + idx + ')" id="check-btn-' + idx + '" class="bg-emerald-600 hover:bg-emerald-700 text-slate-950 font-bold px-4 py-1.5 rounded-lg text-xs transition cursor-pointer">Vérifier</button>' +
+                        '<span id="qcm-feedback-' + idx + '" class="text-xs font-semibold"></span>' +
+                    '</div>' +
+                    '<div id="qcm-expl-' + idx + '" class="hidden mt-2 p-3 rounded-lg border text-xs"></div>'
+                );
+                feed.appendChild(card);
+            });
+        }
+
+        function selectQCMOption(qIdx, oIdx) {
+            if (checkedQuestions[qIdx]) return;
+            userAnswers[qIdx] = oIdx;
             
-            selectedOption = userAnswers[currentIndex];
-            answered = selectedOption !== null;
-
-            q.opts.forEach((opt, index) => {
-                const btn = document.createElement('button');
-                let btnClass = 'w-full text-left p-3.5 rounded-xl border text-xs sm:text-sm transition flex items-start gap-3 cursor-pointer ';
-                if (userAnswers[currentIndex] === index) {
-                    btnClass += 'bg-slate-700 border-emerald-500 text-white shadow';
+            const q = questions[qIdx];
+            q.opts.forEach((_, i) => {
+                const btn = document.getElementById('q' + qIdx + '-opt' + i);
+                if (i === oIdx) {
+                    btn.className = 'w-full text-left p-3 rounded-lg border bg-slate-700 border-emerald-500 text-white text-xs sm:text-sm shadow flex items-start gap-2.5 cursor-pointer';
                 } else {
-                    btnClass += 'bg-slate-750 border-slate-700 hover:border-slate-500 text-slate-200';
+                    btn.className = 'w-full text-left p-3 rounded-lg border border-slate-700 bg-slate-750 hover:border-slate-500 text-xs sm:text-sm text-slate-200 transition flex items-start gap-2.5 cursor-pointer';
                 }
-                btn.className = btnClass;
-                
-                if (answered) {
-                    btn.disabled = true;
-                    if (index === q.corr) {
-                        btn.className = 'w-full text-left p-3.5 rounded-xl border bg-emerald-950/60 border-emerald-500 text-emerald-200 text-xs sm:text-sm';
-                    } else if (index === selectedOption && index !== q.corr) {
-                        btn.className = 'w-full text-left p-3.5 rounded-xl border bg-rose-950/60 border-rose-500 text-rose-200 text-xs sm:text-sm';
-                    } else {
-                        btn.className = 'w-full text-left p-3.5 rounded-xl border bg-slate-800 border-slate-700 text-slate-400 text-xs sm:text-sm opacity-60';
-                    }
-                }
+            });
+        }
 
-                btn.innerHTML = '<span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-700 text-xs font-bold text-slate-300 flex-shrink-0">' + String.fromCharCode(65 + index) + '</span><span class="mt-0.5">' + opt + '</span>';
-                
-                if (!answered) {
-                    btn.onclick = function() { selectOption(index); };
+        function checkQCMQuestion(qIdx) {
+            const selected = userAnswers[qIdx];
+            if (selected === undefined || selected === null) {
+                alert('Veuillez sélectionner une option d\'abord !');
+                return;
+            }
+
+            checkedQuestions[qIdx] = true;
+            const q = questions[qIdx];
+            const isCorrect = selected === q.corr;
+            
+            if (isCorrect) {
+                score++;
+                document.getElementById('current-score').textContent = score;
+            }
+
+            q.opts.forEach((_, i) => {
+                const btn = document.getElementById('q' + qIdx + '-opt' + i);
+                btn.disabled = true;
+                if (i === q.corr) {
+                    btn.className = 'w-full text-left p-3 rounded-lg border bg-emerald-950/70 border-emerald-500 text-emerald-200 text-xs sm:text-sm';
+                } else if (i === selected && !isCorrect) {
+                    btn.className = 'w-full text-left p-3 rounded-lg border bg-rose-950/70 border-rose-500 text-rose-200 text-xs sm:text-sm';
+                } else {
+                    btn.className = 'w-full text-left p-3 rounded-lg border bg-slate-800 border-slate-700 text-slate-500 text-xs sm:text-sm opacity-50';
                 }
-                optsContainer.appendChild(btn);
             });
 
-            document.getElementById('prev-btn').disabled = currentIndex === 0;
+            document.getElementById('check-btn-' + qIdx).classList.add('hidden');
+            const feedback = document.getElementById('qcm-feedback-' + qIdx);
+            feedback.textContent = isCorrect ? '✅ Correct !' : '❌ Incorrect.';
+            feedback.className = isCorrect ? 'text-xs font-bold text-emerald-400' : 'text-xs font-bold text-rose-400';
 
-            if (answered) {
-                document.getElementById('submit-ans-btn').classList.add('hidden');
-                document.getElementById('next-btn').classList.remove('hidden');
-                showExplanation(selectedOption === q.corr, q);
-            } else {
-                document.getElementById('submit-ans-btn').classList.remove('hidden');
-                document.getElementById('next-btn').classList.add('hidden');
-                document.getElementById('submit-ans-btn').disabled = true;
-                document.getElementById('submit-ans-btn').classList.add('opacity-50');
-            }
-        }
-
-        function selectOption(index) {
-            selectedOption = index;
-            const buttons = document.getElementById('options-container').children;
-            for (let i = 0; i < buttons.length; i++) {
-                buttons[i].className = i === index 
-                    ? 'w-full text-left p-3.5 rounded-xl border bg-slate-700 border-emerald-500 text-white shadow text-xs sm:text-sm flex items-start gap-3 cursor-pointer'
-                    : 'w-full text-left p-3.5 rounded-xl border bg-slate-750 border-slate-700 hover:border-slate-500 text-slate-200 text-xs sm:text-sm flex items-start gap-3 cursor-pointer';
-            }
-            const submitBtn = document.getElementById('submit-ans-btn');
-            submitBtn.disabled = false;
-            submitBtn.classList.remove('opacity-50');
-        }
-
-        function submitAnswer() {
-            if (selectedOption === null) return;
-            answered = true;
-            userAnswers[currentIndex] = selectedOption;
-            if (selectedOption === questions[currentIndex].corr) {
-                score++;
-            }
-            document.getElementById('current-score').textContent = score;
-            loadQuestion();
-        }
-
-        function showExplanation(isCorrect, q) {
-            const box = document.getElementById('explanation-box');
-            box.classList.remove('hidden');
-            if (isCorrect) {
-                box.className = 'mt-4 p-4 rounded-xl border bg-emerald-950/40 border-emerald-600/50 text-emerald-200 text-sm';
-                document.getElementById('explanation-title').innerHTML = '<span>✅</span> Bonne réponse !';
-            } else {
-                box.className = 'mt-4 p-4 rounded-xl border bg-rose-950/40 border-rose-600/50 text-rose-200 text-sm';
-                document.getElementById('explanation-title').innerHTML = '<span>❌</span> Mauvaise réponse. La bonne réponse était : <b>' + String.fromCharCode(65 + q.corr) + '</b>';
-            }
-            document.getElementById('explanation-text').textContent = q.exp;
-        }
-
-        function nextQuestion() {
-            if (currentIndex < questions.length - 1) {
-                currentIndex++;
-                loadQuestion();
-            } else {
-                showResults();
-            }
-        }
-
-        function prevQuestion() {
-            if (currentIndex > 0) {
-                currentIndex--;
-                loadQuestion();
-            }
+            const explBox = document.getElementById('qcm-expl-' + qIdx);
+            explBox.classList.remove('hidden');
+            explBox.className = isCorrect 
+                ? 'mt-2 p-3 rounded-lg border bg-emerald-950/40 border-emerald-600/50 text-emerald-200 text-xs' 
+                : 'mt-2 p-3 rounded-lg border bg-rose-950/40 border-rose-600/50 text-rose-200 text-xs';
+            explBox.innerHTML = '<b>Explication :</b> ' + q.exp;
         }
 
         // --- Flashcards Feed Logic ---
@@ -403,46 +345,6 @@ html_template = '''<!DOCTYPE html>
                 loadFiche();
             }
         }
-
-        function showResults() {
-            quizScreen.classList.add('hidden');
-            flashcardScreen.classList.add('hidden');
-            fichesScreen.classList.add('hidden');
-            resultsScreen.classList.remove('hidden');
-            document.getElementById('final-score-text').textContent = 'Votre score QCM : ' + score + ' / ' + questions.length;
-            
-            const percentage = (score / questions.length) * 100;
-            const emoji = document.getElementById('result-emoji');
-            const msg = document.getElementById('result-message');
-
-            if (percentage >= 80) {
-                emoji.textContent = '🏆';
-                msg.textContent = 'Exceptionnel ! Vous maîtrisez parfaitement l’ensemble du cours POO Java de l’ENSA Kénitra.';
-            } else if (percentage >= 50) {
-                emoji.textContent = '👍';
-                msg.textContent = 'Très bon niveau ! Quelques révisions en mode Flashcards ou Fiches Mémoire vous permettront d’atteindre l’excellence.';
-            } else {
-                emoji.textContent = '📚';
-                msg.textContent = 'Consultez les Fiches Mémoire pour réviser chaque chapitre en profondeur !';
-            }
-        }
-
-        function restartQuiz() {
-            currentIndex = 0;
-            score = 0;
-            userAnswers = new Array(questions.length).fill(null);
-            resultsScreen.classList.add('hidden');
-            if (currentMode === 'qcm') {
-                quizScreen.classList.remove('hidden');
-                loadQuestion();
-            } else if (currentMode === 'flash') {
-                flashcardScreen.classList.remove('hidden');
-                renderFlashcardsFeed();
-            } else {
-                fichesScreen.classList.remove('hidden');
-                loadFiche();
-            }
-        }
     </script>
 </body>
 </html>
@@ -453,4 +355,4 @@ final_html = html_template.replace('__TOTAL_Q__', str(len(questions))).replace('
 with open('/home/opc/qcm-poo-java/index.html', 'w', encoding='utf-8') as f:
     f.write(final_html)
 
-print("Successfully generated index.html with scrolling flashcards feed!")
+print("Successfully generated index.html with scrolling QCM and Flashcards feeds!")
