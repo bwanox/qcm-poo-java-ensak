@@ -8,10 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
-        .perspective-1000 { perspective: 1000px; }
-        .transform-style-3d { transform-style: preserve-3d; }
-        .backface-hidden { backface-visibility: hidden; }
-        .rotate-y-180 { transform: rotateY(180deg); }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-full flex flex-col justify-between antialiased">
@@ -28,11 +24,11 @@
             <div class="flex items-center gap-3">
                 <div id="mode-toggle-container" class="bg-slate-700 p-1 rounded-xl flex gap-1 border border-slate-600">
                     <button id="mode-qcm-btn" onclick="switchMode('qcm')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition bg-emerald-500 text-slate-950 cursor-pointer">QCM</button>
-                    <button id="mode-flash-btn" onclick="switchMode('flash')" class="px-2.5 py-1 rounded-lg text-xs font-semibold transition text-slate-300 hover:text-white cursor-pointer">Flashcards</button>
+                    <button id="mode-flash-btn" onclick="switchMode('flash')" class="px-2.5 py-1 rounded-lg text-xs font-semibold transition text-slate-300 hover:text-white cursor-pointer">Flashcards (Flux)</button>
                     <button id="mode-fiches-btn" onclick="switchMode('fiches')" class="px-2.5 py-1 rounded-lg text-xs font-semibold transition text-slate-300 hover:text-white cursor-pointer">Fiches Mémoire</button>
                 </div>
                 <div id="score-badge" class="bg-slate-700 px-3 py-1 rounded-full text-xs font-semibold text-emerald-300 border border-slate-600">
-                    Score: <span id="current-score">0</span>/<span id="total-questions">105</span>
+                    Score QCM: <span id="current-score">0</span>/<span id="total-questions">105</span>
                 </div>
             </div>
         </div>
@@ -46,14 +42,14 @@
             <div class="text-4xl mb-3">🚀</div>
             <h2 class="text-xl font-bold mb-2 text-white">Règles & Maîtrise Totale POO Java (ENSAK)</h2>
             <p class="text-slate-300 text-sm mb-6 leading-relaxed">
-                Ce hub de révision ultime couvre l'intégralité du cours de Pr. Aniss Moumen (105 questions QCM, 105 flashcards et des <b>Fiches Mémoire détaillées</b> pour chaque chapitre jusqu'à la hiérarchie). Choisissez votre mode !
+                Ce hub de révision ultime couvre l'intégralité du cours de Pr. Aniss Moumen (105 questions QCM, 105 flashcards en flux déroulant et des <b>Fiches Mémoire détaillées</b>). Choisissez votre mode !
             </p>
             <div class="flex flex-col sm:flex-row gap-3 justify-center">
                 <button onclick="startMode('qcm')" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-5 py-3 rounded-xl transition shadow-lg cursor-pointer text-xs">
-                    Mode QCM (105 Q)
+                    Mode QCM Interactif (105 Q)
                 </button>
                 <button onclick="startMode('flash')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-3 rounded-xl transition shadow-lg cursor-pointer text-xs">
-                    Mode Flashcards
+                    Flashcards (Flux Déroulant)
                 </button>
                 <button onclick="startMode('fiches')" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-5 py-3 rounded-xl transition shadow-lg cursor-pointer text-xs">
                     Fiches Mémoire (Cours)
@@ -94,43 +90,14 @@
             </div>
         </div>
 
-        <!-- Flashcards Screen -->
-        <div id="flashcard-screen" class="hidden flex flex-col items-center">
-            <div class="w-full flex justify-between items-center mb-3 px-2">
-                <span id="flash-progress" class="text-xs text-slate-400 font-medium">Carte 1 sur 105</span>
-                <span id="flash-category" class="bg-indigo-900/50 text-indigo-300 px-2.5 py-0.5 rounded border border-indigo-700/50 text-[10px] uppercase font-semibold"></span>
+        <!-- Flashcards Scrolling Screen -->
+        <div id="flashcard-screen" class="hidden flex flex-col w-full">
+            <div class="mb-4 text-center">
+                <h3 class="text-lg font-bold text-indigo-400">⚡ Flashcards - Flux Déroulant (105 Cartes)</h3>
+                <p class="text-xs text-slate-400">Cliquez sur n'importe quelle carte pour la retourner et voir l'explication.</p>
             </div>
-
-            <!-- Flip Card Container -->
-            <div class="w-full perspective-1000 h-80 sm:h-72 cursor-pointer mb-5" onclick="flipCard()">
-                <div id="flash-card-inner" class="relative w-full h-full duration-500 transform-style-3d shadow-2xl rounded-2xl">
-                    <!-- Recto -->
-                    <div class="absolute inset-0 w-full h-full bg-slate-800 border-2 border-slate-700 rounded-2xl p-6 flex flex-col justify-between backface-hidden">
-                        <div class="text-xs text-indigo-400 font-semibold">QUESTION / NOTION (Cliquez pour retourner) 🔄</div>
-                        <div class="my-auto">
-                            <h3 id="flash-front" class="text-base sm:text-lg font-bold text-white text-center leading-snug"></h3>
-                        </div>
-                        <div class="text-center text-xs text-slate-400">Touchez la carte pour voir la réponse</div>
-                    </div>
-                    <!-- Verso -->
-                    <div class="absolute inset-0 w-full h-full bg-slate-750 border-2 border-indigo-500/50 rounded-2xl p-6 flex flex-col justify-between backface-hidden rotate-y-180">
-                        <div class="text-xs text-emerald-400 font-semibold">RÉPONSE & EXPLICATION ✨</div>
-                        <div class="my-auto overflow-y-auto max-h-40">
-                            <p id="flash-back" class="text-slate-200 text-xs sm:text-sm text-center leading-relaxed font-medium"></p>
-                        </div>
-                        <div class="text-center text-xs text-slate-400">Touchez pour revenir au recto</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Flash Navigation -->
-            <div class="w-full flex justify-between items-center gap-3">
-                <button onclick="prevFlash()" class="bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs font-semibold px-5 py-2.5 rounded-xl transition cursor-pointer">
-                    ← Précédente
-                </button>
-                <button onclick="nextFlash()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-6 py-2.5 rounded-xl transition shadow cursor-pointer">
-                    Suivante →
-                </button>
+            <div id="flashcards-feed" class="space-y-4 w-full pb-10">
+                <!-- All flashcards injected here -->
             </div>
         </div>
 
@@ -194,7 +161,6 @@
         let selectedOption = null;
         let answered = false;
         let userAnswers = new Array(questions.length).fill(null);
-        let isFlipped = false;
 
         const welcomeScreen = document.getElementById('welcome-screen');
         const quizScreen = document.getElementById('quiz-screen');
@@ -224,7 +190,7 @@
                 quizScreen.classList.add('hidden');
                 fichesScreen.classList.add('hidden');
                 document.getElementById('mode-flash-btn').className = 'px-2.5 py-1 rounded-lg text-xs font-bold transition bg-indigo-600 text-white cursor-pointer';
-                loadFlashcard();
+                renderFlashcardsFeed();
             } else if (mode === 'fiches') {
                 fichesScreen.classList.remove('hidden');
                 quizScreen.classList.add('hidden');
@@ -349,40 +315,49 @@
             }
         }
 
-        // --- Flashcard Logic ---
-        function loadFlashcard() {
-            const q = questions[currentIndex];
-            document.getElementById('flash-progress').textContent = 'Carte ' + (currentIndex + 1) + ' sur ' + questions.length;
-            document.getElementById('flash-category').textContent = q.cat;
-            document.getElementById('flash-front').textContent = q.q;
-            
-            const correctOptText = q.opts[q.corr];
-            document.getElementById('flash-back').innerHTML = '<b>Réponse :</b> ' + correctOptText + '<br><br><span class="text-xs text-slate-300">' + q.exp + '</span>';
-            
-            isFlipped = false;
-            document.getElementById('flash-card-inner').style.transform = 'rotateY(0deg)';
-        }
+        // --- Flashcards Feed Logic ---
+        function renderFlashcardsFeed() {
+            const feed = document.getElementById('flashcards-feed');
+            feed.innerHTML = '';
+            questions.forEach((q, idx) => {
+                const card = document.createElement('div');
+                card.className = 'bg-slate-800 border border-slate-700 rounded-xl p-4 shadow cursor-pointer transition hover:border-indigo-500';
+                card.dataset.flipped = 'false';
 
-        function flipCard() {
-            isFlipped = !isFlipped;
-            const inner = document.getElementById('flash-card-inner');
-            inner.style.transform = isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)';
-        }
+                const correctText = q.opts[q.corr];
 
-        function nextFlash() {
-            if (currentIndex < questions.length - 1) {
-                currentIndex++;
-                loadFlashcard();
-            } else {
-                showResults();
-            }
-        }
+                card.innerHTML = (
+                    '<div class="flex justify-between items-center mb-2">' +
+                        '<span class="text-[10px] bg-indigo-900/50 text-indigo-300 px-2 py-0.5 rounded border border-indigo-700/50 uppercase font-semibold">' + q.cat + '</span>' +
+                        '<span class="text-xs text-slate-400 font-semibold">Carte #' + (idx + 1) + '</span>' +
+                    '</div>' +
+                    '<h4 class="text-sm font-bold text-white mb-2">' + q.q + '</h4>' +
+                    '<div class="answer-section hidden mt-3 pt-3 border-t border-slate-700 text-xs sm:text-sm">' +
+                        '<p class="text-emerald-400 font-semibold mb-1">Réponse : ' + correctText + '</p>' +
+                        '<p class="text-slate-300 leading-relaxed">' + q.exp + '</p>' +
+                    '</div>' +
+                    '<div class="text-[10px] text-indigo-400 font-medium text-right mt-2 flip-hint">Cliquez pour voir la réponse 🔄</div>'
+                );
 
-        function prevFlash() {
-            if (currentIndex > 0) {
-                currentIndex--;
-                loadFlashcard();
-            }
+                card.onclick = function() {
+                    const ansSec = card.querySelector('.answer-section');
+                    const hint = card.querySelector('.flip-hint');
+                    const isFlipped = card.dataset.flipped === 'true';
+                    if (isFlipped) {
+                        ansSec.classList.add('hidden');
+                        hint.textContent = 'Cliquez pour voir la réponse 🔄';
+                        card.dataset.flipped = 'false';
+                        card.className = 'bg-slate-800 border border-slate-700 rounded-xl p-4 shadow cursor-pointer transition hover:border-indigo-500';
+                    } else {
+                        ansSec.classList.remove('hidden');
+                        hint.textContent = 'Cliquez pour masquer 🔄';
+                        card.dataset.flipped = 'true';
+                        card.className = 'bg-slate-800 border-2 border-indigo-500 rounded-xl p-4 shadow-lg cursor-pointer transition';
+                    }
+                };
+
+                feed.appendChild(card);
+            });
         }
 
         // --- Fiches Mémoire Logic ---
@@ -449,7 +424,7 @@
                 loadQuestion();
             } else if (currentMode === 'flash') {
                 flashcardScreen.classList.remove('hidden');
-                loadFlashcard();
+                renderFlashcardsFeed();
             } else {
                 fichesScreen.classList.remove('hidden');
                 loadFiche();
