@@ -1,5 +1,6 @@
 import json
 from fiches_data import fiches_memoire
+from syntax_data import syntax_questions
 import sys
 import importlib.util
 
@@ -7,9 +8,11 @@ spec = importlib.util.spec_from_file_location("gen", "/home/opc/qcm-poo-java/gen
 gen_mod = importlib.util.module_from_spec(spec)
 sys.modules["gen"] = gen_mod
 spec.loader.exec_module(gen_mod)
-questions = gen_mod.questions
+base_questions = gen_mod.questions
 
-print(f"Loaded {len(questions)} questions and {len(fiches_memoire)} fiches memoire.")
+questions = base_questions + syntax_questions
+
+print(f"Loaded {len(base_questions)} base questions + {len(syntax_questions)} syntax questions = {len(questions)} total questions and {len(fiches_memoire)} fiches memoire.")
 
 html_template = '''<!DOCTYPE html>
 <html lang="fr" class="h-full">
@@ -32,7 +35,7 @@ html_template = '''<!DOCTYPE html>
                 <h1 class="text-base sm:text-lg font-bold text-emerald-400 flex items-center gap-2">
                     <span>☕</span> POO Java Masterclass - ENSAK
                 </h1>
-                <p class="text-xs text-slate-400">Pr. Aniss Moumen | QCM, Flashcards & Fiches Mémoire</p>
+                <p class="text-xs text-slate-400">Pr. Aniss Moumen | 125 QCM, Flashcards & Syntaxe</p>
             </div>
             <div class="flex items-center gap-3">
                 <div id="mode-toggle-container" class="bg-slate-700 p-1 rounded-xl flex gap-1 border border-slate-600">
@@ -53,13 +56,13 @@ html_template = '''<!DOCTYPE html>
         <!-- Welcome Screen -->
         <div id="welcome-screen" class="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-xl text-center">
             <div class="text-4xl mb-3">🚀</div>
-            <h2 class="text-xl font-bold mb-2 text-white">Règles & Maîtrise Totale POO Java (ENSAK)</h2>
+            <h2 class="text-xl font-bold mb-2 text-white">Règles, Syntaxe & Maîtrise POO Java (ENSAK)</h2>
             <p class="text-slate-300 text-sm mb-6 leading-relaxed">
-                Ce hub de révision ultime couvre l'intégralité du cours de Pr. Aniss Moumen en <b>flux déroulant continu</b> (105 questions QCM, 105 flashcards et des <b>Fiches Mémoire détaillées</b>). Choisissez votre mode !
+                Ce hub de révision ultime couvre l'intégralité du cours du Pr. Aniss Moumen en <b>flux déroulant continu</b> : <b>125 questions QCM</b> (incluant notions de cours et syntaxe/méthodes prédéfinies comme `String`, `Arrays`, `Scanner`), 125 flashcards et des <b>Fiches Mémoire détaillées</b>.
             </p>
             <div class="flex flex-col sm:flex-row gap-3 justify-center">
                 <button onclick="startMode('qcm')" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-5 py-3 rounded-xl transition shadow-lg cursor-pointer text-xs">
-                    Mode QCM (Flux Déroulant)
+                    Mode QCM (125 Q + Syntaxe)
                 </button>
                 <button onclick="startMode('flash')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-3 rounded-xl transition shadow-lg cursor-pointer text-xs">
                     Flashcards (Flux Déroulant)
@@ -73,8 +76,8 @@ html_template = '''<!DOCTYPE html>
         <!-- QCM Scrolling Screen -->
         <div id="quiz-screen" class="hidden flex flex-col w-full">
             <div class="mb-4 text-center">
-                <h3 class="text-lg font-bold text-emerald-400">📝 QCM - Flux Déroulant (105 Questions)</h3>
-                <p class="text-xs text-slate-400">Répondez à votre rythme, vérifiez instantanément vos réponses et suivez votre score en direct !</p>
+                <h3 class="text-lg font-bold text-emerald-400">📝 QCM & Syntaxe - Flux Déroulant (125 Questions)</h3>
+                <p class="text-xs text-slate-400">Cours, hiérarchie et méthodes prédéfinies (`String`, `Arrays`, `Math`, etc.) : répondez et vérifiez en direct !</p>
             </div>
             <div id="qcm-feed" class="space-y-6 w-full pb-10">
                 <!-- All QCM questions injected here -->
@@ -84,7 +87,7 @@ html_template = '''<!DOCTYPE html>
         <!-- Flashcards Scrolling Screen -->
         <div id="flashcard-screen" class="hidden flex flex-col w-full">
             <div class="mb-4 text-center">
-                <h3 class="text-lg font-bold text-indigo-400">⚡ Flashcards - Flux Déroulant (105 Cartes)</h3>
+                <h3 class="text-lg font-bold text-indigo-400">⚡ Flashcards - Flux Déroulant (125 Cartes)</h3>
                 <p class="text-xs text-slate-400">Cliquez sur n'importe quelle carte pour la retourner et voir l'explication.</p>
             </div>
             <div id="flashcards-feed" class="space-y-4 w-full pb-10">
@@ -232,7 +235,7 @@ html_template = '''<!DOCTYPE html>
         function checkQCMQuestion(qIdx) {
             const selected = userAnswers[qIdx];
             if (selected === undefined || selected === null) {
-                alert('Veuillez sélectionner une option d\'abord !');
+                alert('Veuillez sélectionner une option d\\'abord !');
                 return;
             }
 
@@ -355,4 +358,4 @@ final_html = html_template.replace('__TOTAL_Q__', str(len(questions))).replace('
 with open('/home/opc/qcm-poo-java/index.html', 'w', encoding='utf-8') as f:
     f.write(final_html)
 
-print("Successfully generated index.html with scrolling QCM and Flashcards feeds!")
+print("Successfully generated index.html with 125 questions (QCM + Syntax + Flashcards + Fiches)!")
